@@ -405,7 +405,7 @@ Future<void> taskForm(
                             if (await confirm(
                               context,
                               'Delete this task?',
-                              'This task will be removed from the workspace.',
+                              'This task will move to the Bin. You can restore it later.',
                             )) {
                               s.deleteTask(existing.id);
                               if (context.mounted) Navigator.pop(context);
@@ -683,22 +683,23 @@ Future<bool> deleteProjectWithUndo(
   WorkspaceStore store,
   Project project,
 ) async {
-  final removedTasks = store.forProject(project.id).toList();
+  final count = store.forProject(project.id).length;
   final accepted = await confirm(
     context,
-    'Delete ${project.name}?',
-    'This also removes its ${removedTasks.length} tasks from the board and planner. You can undo immediately afterwards.',
+    'Move ${project.name} to Bin?',
+    'Its $count tasks will leave the board and planner too. You can restore them together from the Bin.',
   );
   if (!accepted || !context.mounted) return false;
   final messenger = ScaffoldMessenger.of(context);
-  store.deleteProject(project.id);
+  final item = store.deleteProject(project.id);
+  if (item == null) return false;
   messenger.showSnackBar(
     SnackBar(
-      content: Text('Deleted ${project.name}'),
+      content: Text('Moved ${project.name} to Bin'),
       duration: const Duration(seconds: 8),
       action: SnackBarAction(
         label: 'Undo',
-        onPressed: () => store.restoreProject(project, removedTasks),
+        onPressed: () => store.restoreBinItem(item.id),
       ),
     ),
   );

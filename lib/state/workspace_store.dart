@@ -12,6 +12,7 @@ class WorkspaceStore extends ChangeNotifier {
   List<Project> projects = [];
   List<WorkTask> tasks = [];
   List<Member> members = [];
+  List<BinItem> bin = [];
   List<String> activity = [];
   String name = 'Chaitra', workspace = 'Dev collective';
   bool dark = false;
@@ -41,6 +42,9 @@ class WorkspaceStore extends ChangeNotifier {
       tasks = (j['tasks'] as List).map((x) => WorkTask.fromJson(x)).toList();
       members = (j['members'] as List).map((x) => Member.fromJson(x)).toList();
       activity = List<String>.from(j['activity']);
+      bin = (j['bin'] as List? ?? [])
+          .map((item) => BinItem.fromJson(item))
+          .toList();
       name = j['name'];
       hasChosenName =
           j['hasChosenName'] as bool? ??
@@ -115,6 +119,7 @@ class WorkspaceStore extends ChangeNotifier {
 
   void seed() {
     final now = DateTime.now();
+    bin = [];
     members = [
       Member('m1', 'Aarav Sharma', 'Frontend developer'),
       Member('m2', 'Priya Reddy', 'UI / UX designer'),
@@ -237,6 +242,7 @@ class WorkspaceStore extends ChangeNotifier {
     'workspace': workspace,
     'dark': dark,
     'hasChosenName': hasChosenName,
+    'bin': bin.map((item) => item.toJson()).toList(),
   });
   Future<void> save() {
     final snapshot = exportJson();
@@ -278,24 +284,67 @@ class WorkspaceStore extends ChangeNotifier {
     changed('${i < 0 ? 'Created' : 'Updated'} ${p.name}');
   }
 
-  void deleteProject(String id) {
+  BinItem? deleteProject(String id) {
+    final project = projects.where((p) => p.id == id).firstOrNull;
+    if (project == null) return null;
+    final item = BinItem(
+      id: newId(),
+      isProject: true,
+      project: Project.fromJson(project.toJson()),
+      tasks: forProject(id).map((t) => WorkTask.fromJson(t.toJson())).toList(),
+      deletedAt: DateTime.now(),
+    );
+    bin.insert(0, item);
     projects.removeWhere((p) => p.id == id);
     tasks.removeWhere((t) => t.projectId == id);
-    changed('Removed a project and its tasks');
+    changed('Moved ${project.name} and its tasks to Bin');
+    return item;
   }
 
-  void restoreProject(Project project, List<WorkTask> removedTasks) {
-    if (projects.any((p) => p.id == project.id)) return;
-    projects.add(project);
-    for (final task in removedTasks) {
-      if (tasks.any((t) => t.id == task.id)) continue;
-      if (task.assignee.isNotEmpty &&
-          !members.any((m) => m.id == task.assignee)) {
-        task.assignee = '';
+  bool restoreBinItem(String id) {
+    final item = bin.where((item) => item.id == id).firstOrNull;
+    if (item == null) return false;
+    _restoreBinItem(item);
+    changed('Restored ${item.title}');
+    return true;
+  }
+
+  void _restoreBinItem(BinItem item) {
+    if (!projects.any((p) => p.id == item.project.id)) {
+      final parent = bin
+          .where((b) => b.isProject && b.project.id == item.project.id)
+          .firstOrNull;
+      if (!item.isProject && parent != null) {
+        _restoreBinItem(parent);
+      } else {
+        projects.add(Project.fromJson(item.project.toJson()));
       }
-      tasks.add(task);
     }
-    changed('Restored ${project.name}');
+    for (final removed in item.tasks) {
+      if (tasks.any((t) => t.id == removed.id)) continue;
+      final restored = WorkTask.fromJson(removed.toJson());
+      if (restored.assignee.isNotEmpty &&
+          !members.any((m) => m.id == restored.assignee)) {
+        restored.assignee = '';
+      }
+      tasks.add(restored);
+    }
+    bin.removeWhere((b) => b.id == item.id);
+  }
+
+  void permanentlyDeleteBinItem(String id) {
+    final item = bin.where((b) => b.id == id).firstOrNull;
+    if (item == null) return;
+    bin.removeWhere(
+      (b) => b.id == id || (item.isProject && b.project.id == item.project.id),
+    );
+    changed('Permanently removed ${item.title} from Bin');
+  }
+
+  void emptyBin() {
+    if (bin.isEmpty) return;
+    bin.clear();
+    changed('Emptied the Bin');
   }
 
   void upsertTask(WorkTask t) {
@@ -313,9 +362,22 @@ class WorkspaceStore extends ChangeNotifier {
     changed('Moved “${t.title}” to $status');
   }
 
-  void deleteTask(String id) {
+  BinItem? deleteTask(String id) {
+    final task = tasks.where((t) => t.id == id).firstOrNull;
+    if (task == null) return null;
+    final project = projects.where((p) => p.id == task.projectId).firstOrNull;
+    if (project == null) return null;
+    final item = BinItem(
+      id: newId(),
+      isProject: false,
+      project: Project.fromJson(project.toJson()),
+      tasks: [WorkTask.fromJson(task.toJson())],
+      deletedAt: DateTime.now(),
+    );
+    bin.insert(0, item);
     tasks.removeWhere((t) => t.id == id);
-    changed('Removed a task');
+    changed('Moved “${task.title}” to Bin');
+    return item;
   }
 
   void addMember(Member m) {
@@ -336,6 +398,21 @@ class WorkspaceStore extends ChangeNotifier {
     final ps = (j['projects'] as List).map((x) => Project.fromJson(x)).toList();
     final ts = (j['tasks'] as List).map((x) => WorkTask.fromJson(x)).toList();
     final ms = (j['members'] as List).map((x) => Member.fromJson(x)).toList();
+    final bs = (j['bin'] as List? ?? [])
+        .map((x) => BinItem.fromJson(x))
+        .toList();
+    final binnedTaskIds = bs.expand((b) => b.tasks).map((t) => t.id).toList();
+    final binnedProjectIds = bs
+        .where((b) => b.isProject)
+        .map((b) => b.project.id)
+        .toList();
+    if (bs.map((b) => b.id).toSet().length != bs.length ||
+        binnedTaskIds.toSet().length != binnedTaskIds.length ||
+        binnedProjectIds.toSet().length != binnedProjectIds.length ||
+        ts.any((t) => binnedTaskIds.contains(t.id)) ||
+        ps.any((p) => binnedProjectIds.contains(p.id))) {
+      throw const FormatException('Invalid Bin references');
+    }
     if (ps.map((p) => p.id).toSet().length != ps.length ||
         ts.map((t) => t.id).toSet().length != ts.length ||
         ms.map((m) => m.id).toSet().length != ms.length ||
@@ -356,6 +433,7 @@ class WorkspaceStore extends ChangeNotifier {
     projects = ps;
     tasks = ts;
     members = ms;
+    bin = bs;
     name = importedName;
     workspace = importedWorkspace;
     dark = importedDark;

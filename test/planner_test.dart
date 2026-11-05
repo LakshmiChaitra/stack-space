@@ -199,7 +199,7 @@ void main() {
       s.upsertTask(t);
       s.deleteProject(p.id);
       s.removeMember('m1');
-      s.restoreProject(p, [t]);
+      s.restoreBinItem(s.bin.single.id);
       await s.save();
       final reloaded = WorkspaceStore(preferences: s.prefs);
       await reloaded.load();

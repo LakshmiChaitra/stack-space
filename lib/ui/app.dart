@@ -13,6 +13,7 @@ part 'studio.dart';
 part 'developer_art.dart';
 part 'welcome.dart';
 part 'planner.dart';
+part 'bin.dart';
 
 const violet = Color(0xff806497);
 const muted = Color(0xff89818e);
@@ -125,6 +126,7 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
     'Planner': Icons.calendar_month_outlined,
     'Team': Icons.people_outline,
     'Settings': Icons.tune_rounded,
+    'Bin': Icons.delete_outline_rounded,
   };
   @override
   void dispose() {
@@ -271,6 +273,8 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
                           ? PlannerPage(store: s, query: query)
                           : page == 'Team'
                           ? teamPage()
+                          : page == 'Bin'
+                          ? BinPage(store: s, query: query)
                           : settingsPage(),
                     ),
                   ),

@@ -194,7 +194,9 @@ class StudioSidebar extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (e.key == 'Task board')
+                                    if (e.key == 'Task board' ||
+                                        (e.key == 'Bin' &&
+                                            store.bin.isNotEmpty))
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 6,
@@ -211,7 +213,7 @@ class StudioSidebar extends StatelessWidget {
                                           ),
                                         ),
                                         child: Text(
-                                          '${store.tasks.where((t) => t.status != 'Done').length}',
+                                          '${e.key == 'Bin' ? store.bin.length : store.tasks.where((t) => t.status != 'Done').length}',
                                           style: TextStyle(
                                             fontSize: 9,
                                             color: selected
