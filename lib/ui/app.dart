@@ -11,6 +11,7 @@ part 'pages.dart';
 part 'forms.dart';
 part 'studio.dart';
 part 'developer_art.dart';
+part 'welcome.dart';
 
 const violet = Color(0xff806497);
 const muted = Color(0xff89818e);
@@ -93,7 +94,9 @@ class StackSpaceApp extends StatelessWidget {
       theme: theme(false),
       darkTheme: theme(true),
       themeMode: store.dark ? ThemeMode.dark : ThemeMode.light,
-      home: WorkspaceShell(store: store),
+      home: store.hasChosenName
+          ? WorkspaceShell(store: store)
+          : WelcomeScreen(store: store),
     ),
   );
 }

@@ -124,6 +124,7 @@ void main() {
         final store = WorkspaceStore(preferences: MemoryPreferences());
         await store.load();
         store.dark = dark;
+        store.hasChosenName = true;
         await tester.pumpWidget(StackSpaceApp(store: store));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);

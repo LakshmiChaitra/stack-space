@@ -660,6 +660,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             onPressed: () {
               if (!key.currentState!.validate()) return;
               widget.store.name = name.text.trim();
+              widget.store.hasChosenName = true;
               widget.store.workspace = workspace.text.trim();
               widget.store.changed('Updated workspace profile');
               ScaffoldMessenger.of(context)

@@ -13,10 +13,18 @@ class WorkspaceStore extends ChangeNotifier {
   List<WorkTask> tasks = [];
   List<Member> members = [];
   List<String> activity = [];
-  String name = 'Aarav', workspace = 'Dev collective';
+  String name = 'Chaitra', workspace = 'Dev collective';
   bool dark = false;
+  bool hasChosenName = false;
   String? storageError;
   Future<void> _writes = Future.value();
+  void chooseName(String value) {
+    name = value.trim().isEmpty ? 'Chaitra' : value.trim();
+    hasChosenName = true;
+    notifyListeners();
+    save();
+  }
+
   String newId() => DateTime.now().microsecondsSinceEpoch.toString();
   Future<void> load() async {
     try {
@@ -34,6 +42,12 @@ class WorkspaceStore extends ChangeNotifier {
       members = (j['members'] as List).map((x) => Member.fromJson(x)).toList();
       activity = List<String>.from(j['activity']);
       name = j['name'];
+      hasChosenName =
+          j['hasChosenName'] as bool? ??
+          !['Alex', 'Aarav', 'Chaitra'].contains(name);
+      if (!hasChosenName && ['Alex', 'Aarav'].contains(name)) {
+        name = 'Chaitra';
+      }
       workspace = j['workspace'];
       dark = j['dark'];
       var migrated = false;
@@ -51,7 +65,7 @@ class WorkspaceStore extends ChangeNotifier {
         }
       }
       if (name == 'Alex') {
-        name = 'Aarav';
+        name = 'Chaitra';
         migrated = true;
       }
       for (final project in projects) {
@@ -222,6 +236,7 @@ class WorkspaceStore extends ChangeNotifier {
     'name': name,
     'workspace': workspace,
     'dark': dark,
+    'hasChosenName': hasChosenName,
   });
   Future<void> save() {
     final snapshot = exportJson();
@@ -322,6 +337,7 @@ class WorkspaceStore extends ChangeNotifier {
     final importedName = j['name'] as String;
     final importedWorkspace = j['workspace'] as String;
     final importedDark = j['dark'] as bool;
+    final importedChosenName = j['hasChosenName'] as bool? ?? true;
     final importedActivity = List<String>.from(j['activity']);
     projects = ps;
     tasks = ts;
@@ -329,6 +345,7 @@ class WorkspaceStore extends ChangeNotifier {
     name = importedName;
     workspace = importedWorkspace;
     dark = importedDark;
+    hasChosenName = importedChosenName;
     activity = importedActivity;
     changed('Restored workspace from backup');
   }

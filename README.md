@@ -37,6 +37,7 @@ python3 -m http.server 8080 --directory build/web
 - Three-column drag-and-drop Kanban board; accessible task menus and form status selectors provide alternatives to dragging. Horizontal board scrolling on compact screens.
 - Task creation/editing/deletion, descriptions, assignment, priorities, due dates, project and priority filters, and list view.
 - Local team directory; removing a member unassigns their tasks.
+- First-visit name prompt with a Chaitra fallback, remembered in the current browser. Existing custom profile names are preserved.
 - Light/dark themes and editable workspace profile.
 - Persistent browser storage with serialized writes and visible save errors.
 - Copy/export and validated restore of portable JSON workspace backups.
@@ -67,6 +68,7 @@ lib/
   ui/components.dart            Reusable presentation widgets
   ui/pages.dart                 Screens, repository API integration
   ui/forms.dart                 Validated dialogs and profile settings
+  ui/welcome.dart               First-visit name prompt and Chaitra fallback
   ui/studio.dart                Adaptive palette, workspace sidebar and hero
   ui/developer_art.dart         Code-window artwork and workspace progress
 ```
