@@ -913,26 +913,20 @@ class ProjectDetail extends StatelessWidget {
       final tasks = store.forProject(p.id);
       return Scaffold(
         appBar: AppBar(
-          title: Text(p.name),
+          title: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis),
           actions: [
             IconButton(
               tooltip: 'Edit project',
               onPressed: () => projectForm(context, store, existing: p),
               icon: const Icon(Icons.edit_outlined),
             ),
-            IconButton(
-              tooltip: 'Delete project',
+            TextButton.icon(
               onPressed: () async {
-                if (await confirm(
-                  context,
-                  'Delete ${p.name}?',
-                  'This removes the project and its ${tasks.length} tasks. Export a backup first if you need to keep them.',
-                )) {
-                  store.deleteProject(p.id);
-                  if (context.mounted) Navigator.pop(context);
-                }
+                final deleted = await deleteProjectWithUndo(context, store, p);
+                if (deleted && context.mounted) Navigator.pop(context);
               },
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline, size: 18),
+              label: const Text('Delete'),
             ),
             const SizedBox(width: 12),
           ],

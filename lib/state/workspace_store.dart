@@ -284,6 +284,20 @@ class WorkspaceStore extends ChangeNotifier {
     changed('Removed a project and its tasks');
   }
 
+  void restoreProject(Project project, List<WorkTask> removedTasks) {
+    if (projects.any((p) => p.id == project.id)) return;
+    projects.add(project);
+    for (final task in removedTasks) {
+      if (tasks.any((t) => t.id == task.id)) continue;
+      if (task.assignee.isNotEmpty &&
+          !members.any((m) => m.id == task.assignee)) {
+        task.assignee = '';
+      }
+      tasks.add(task);
+    }
+    changed('Restored ${project.name}');
+  }
+
   void upsertTask(WorkTask t) {
     final i = tasks.indexWhere((x) => x.id == t.id);
     if (i < 0) {

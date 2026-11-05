@@ -67,6 +67,7 @@ class Panel extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) => Card(
+    semanticContainer: false,
     margin: EdgeInsets.zero,
     elevation: 0,
     color: color ?? surface(context),
@@ -271,7 +272,15 @@ class _ProjectCardState extends State<ProjectCard> {
                           ),
                         ),
                       ),
-                      Icon(Icons.north_east_rounded, size: 18, color: color),
+                      IconButton(
+                        tooltip: 'Delete ${p.name}',
+                        onPressed: () => deleteProjectWithUndo(context, s, p),
+                        icon: Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: color,
+                        ),
+                      ),
                     ],
                   ),
                 ),

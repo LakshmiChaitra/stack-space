@@ -241,6 +241,7 @@ Future<void> taskForm(
   WorkTask? existing,
   String? projectId,
   String status = 'To do',
+  DateTime? initialDue,
 }) async {
   if (s.projects.isEmpty) return;
   final key = GlobalKey<FormState>();
@@ -250,7 +251,10 @@ Future<void> taskForm(
   String state = existing?.status ?? status;
   String priority = existing?.priority ?? 'Medium';
   String assignee = existing?.assignee ?? '';
-  DateTime due = existing?.due ?? DateTime.now().add(const Duration(days: 1));
+  DateTime due =
+      existing?.due ??
+      initialDue ??
+      DateTime.now().add(const Duration(days: 1));
   await showDialog(
     context: context,
     builder: (context) => StatefulBuilder(
@@ -672,4 +676,31 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       ),
     ),
   );
+}
+
+Future<bool> deleteProjectWithUndo(
+  BuildContext context,
+  WorkspaceStore store,
+  Project project,
+) async {
+  final removedTasks = store.forProject(project.id).toList();
+  final accepted = await confirm(
+    context,
+    'Delete ${project.name}?',
+    'This also removes its ${removedTasks.length} tasks from the board and planner. You can undo immediately afterwards.',
+  );
+  if (!accepted || !context.mounted) return false;
+  final messenger = ScaffoldMessenger.of(context);
+  store.deleteProject(project.id);
+  messenger.showSnackBar(
+    SnackBar(
+      content: Text('Deleted ${project.name}'),
+      duration: const Duration(seconds: 8),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () => store.restoreProject(project, removedTasks),
+      ),
+    ),
+  );
+  return true;
 }

@@ -34,6 +34,8 @@ python3 -m http.server 8080 --directory build/web
 - Overview dashboard: computed project/task/member counts, completion ring, upcoming work, and recent activity.
 - Create, read, update, and delete projects with description, category, color, target date, and optional public GitHub repository.
 - Project detail route with its tasks and live repository statistics.
+- Visible project-card delete buttons, confirmation, and an 8-second Undo restoring the project and linked tasks.
+- Planner with Month/Day views, clickable calendar dates, month/day navigation, Today shortcut, and a selected-day checklist. Quick-added tasks use the selected due date and project; circular controls sync completion with the board and project progress. On compact layouts, tapping a date scrolls to its checklist.
 - Three-column drag-and-drop Kanban board; accessible task menus and form status selectors provide alternatives to dragging. Horizontal board scrolling on compact screens.
 - Task creation/editing/deletion, descriptions, assignment, priorities, due dates, project and priority filters, and list view.
 - Local team directory; removing a member unassigns their tasks.
@@ -69,6 +71,7 @@ lib/
   ui/pages.dart                 Screens, repository API integration
   ui/forms.dart                 Validated dialogs and profile settings
   ui/welcome.dart               First-visit name prompt and Chaitra fallback
+  ui/planner.dart               Monthly calendar and daily task checklist
   ui/studio.dart                Adaptive palette, workspace sidebar and hero
   ui/developer_art.dart         Code-window artwork and workspace progress
 ```
@@ -123,3 +126,5 @@ The app is branded **Stack Space**. The Dart package identifier, workspace direc
 The app is deployed at https://lakshmichaitra.github.io/stack-space/. Pushes to `main` run `.github/workflows/deploy.yml`: Flutter analysis, tests, a release build with `--base-href /stack-space/`, and a GitHub Pages deployment. GitHub Pages must use GitHub Actions as its publishing source. The pipeline uses Flutter 3.47.2 to match the project SDK.
 
 Workspace data is stored per browser and origin, so local preview data does not transfer automatically to the deployed URL. Use Settings → Export backup / Restore backup to transfer it.
+
+Planner tests cover desktop/tablet/mobile in both themes, selected-date task creation and persistence, shared completion/progress, leap-year month boundaries, date selection, project-delete confirmation, and Undo restoring linked tasks. The full suite has 23 tests.

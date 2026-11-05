@@ -12,6 +12,7 @@ part 'forms.dart';
 part 'studio.dart';
 part 'developer_art.dart';
 part 'welcome.dart';
+part 'planner.dart';
 
 const violet = Color(0xff806497);
 const muted = Color(0xff89818e);
@@ -121,6 +122,7 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
     'Overview': Icons.space_dashboard_outlined,
     'Projects': Icons.folder_outlined,
     'Task board': Icons.view_kanban_outlined,
+    'Planner': Icons.calendar_month_outlined,
     'Team': Icons.people_outline,
     'Settings': Icons.tune_rounded,
   };
@@ -265,6 +267,8 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
                           ? projectsPage()
                           : page == 'Task board'
                           ? taskPage()
+                          : page == 'Planner'
+                          ? PlannerPage(store: s, query: query)
                           : page == 'Team'
                           ? teamPage()
                           : settingsPage(),
