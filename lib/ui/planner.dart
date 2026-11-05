@@ -191,7 +191,7 @@ class _PlannerPageState extends State<PlannerPage> {
                           children: [
                             Expanded(child: intro),
                             const SizedBox(width: 18),
-                            SizedBox(width: 410, child: controls()),
+                            SizedBox(width: 450, child: controls()),
                           ],
                         )
                       : Column(
