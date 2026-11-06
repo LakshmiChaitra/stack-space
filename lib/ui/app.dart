@@ -114,7 +114,8 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
   String page = 'Overview',
       query = '',
       boardProject = 'All projects',
-      priority = 'All priorities';
+      priority = 'All priorities',
+      taskStatus = 'All statuses';
   bool board = true;
   WorkspaceStore get s => widget.store;
   final search = TextEditingController();
@@ -145,6 +146,16 @@ class _WorkspaceShellState extends State<WorkspaceShell> {
       page = value;
       query = '';
       search.clear();
+    });
+  }
+
+  void openTaskStatus(String status) {
+    navigate('Task board');
+    setState(() {
+      boardProject = 'All projects';
+      priority = 'All priorities';
+      taskStatus = status;
+      board = false;
     });
   }
 

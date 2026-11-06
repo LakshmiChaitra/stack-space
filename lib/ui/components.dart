@@ -420,6 +420,7 @@ class StatCard extends StatelessWidget {
   final String title, value, caption;
   final IconData icon;
   final Color color;
+  final VoidCallback onTap;
   const StatCard({
     super.key,
     required this.title,
@@ -427,6 +428,7 @@ class StatCard extends StatelessWidget {
     required this.caption,
     required this.icon,
     required this.color,
+    required this.onTap,
   });
   @override
   Widget build(BuildContext context) {
@@ -438,71 +440,79 @@ class StatCard extends StatelessWidget {
         ? const Color(0xffdfece3)
         : const Color(0xfff3dfdc);
     final accent = readableAccent(context, color);
-    return Container(
-      padding: const EdgeInsets.all(19),
-      decoration: BoxDecoration(
-        color: pastel(context, base),
-        borderRadius: BorderRadius.circular(21),
-        border: Border.all(color: surface(context).withValues(alpha: .5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title.toUpperCase(),
-                  maxLines: 2,
-                  style: TextStyle(
-                    color: ink(context).withValues(alpha: .6),
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: .8,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(icon, color: accent, size: 18),
-            ],
+    return Material(
+      color: pastel(context, base),
+      borderRadius: BorderRadius.circular(21),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: ValueKey('stat-$title'),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(19),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(21),
+            border: Border.all(color: surface(context).withValues(alpha: .5)),
           ),
-          const SizedBox(height: 13),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 43,
-                  height: 1,
-                  letterSpacing: -1.8,
-                  color: ink(context),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title.toUpperCase(),
+                      maxLines: 2,
+                      style: TextStyle(
+                        color: ink(context).withValues(alpha: .6),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: .8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(icon, color: accent, size: 18),
+                ],
+              ),
+              const SizedBox(height: 13),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 43,
+                      height: 1,
+                      letterSpacing: -1.8,
+                      color: ink(context),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 31,
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: surface(context).withValues(alpha: .45),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(Icons.north_east, size: 13, color: accent),
+                  ),
+                ],
               ),
               const Spacer(),
-              Container(
-                width: 31,
-                height: 25,
-                decoration: BoxDecoration(
-                  color: surface(context).withValues(alpha: .45),
-                  borderRadius: BorderRadius.circular(20),
+              Text(
+                caption,
+                maxLines: 2,
+                style: TextStyle(
+                  color: ink(context).withValues(alpha: .55),
+                  fontSize: 9,
+                  height: 1.4,
                 ),
-                child: Icon(Icons.north_east, size: 13, color: accent),
               ),
             ],
           ),
-          const Spacer(),
-          Text(
-            caption,
-            maxLines: 2,
-            style: TextStyle(
-              color: ink(context).withValues(alpha: .55),
-              fontSize: 9,
-              height: 1.4,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -574,9 +584,34 @@ class TaskTile extends StatelessWidget {
                     : const Color(0xffc79646),
               ),
             const SizedBox(width: 16),
-            Text(
-              dateLabel(task.due),
-              style: const TextStyle(color: muted, fontSize: 10),
+            Tooltip(
+              message: 'Edit task due date',
+              child: InkWell(
+                key: ValueKey('task-due-${task.id}'),
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => editTaskDueDate(context, store, task),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 4,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.edit_calendar_outlined,
+                        size: 14,
+                        color: muted,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        dateLabel(task.due),
+                        style: const TextStyle(color: muted, fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Avatar(name: member?.name ?? 'Unassigned', size: 28),

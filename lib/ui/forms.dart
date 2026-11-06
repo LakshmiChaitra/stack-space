@@ -45,6 +45,42 @@ Widget formField(
     validator: validator ?? requiredText,
   ),
 );
+Future<void> editProjectDueDate(
+  BuildContext context,
+  WorkspaceStore store,
+  Project project,
+) async {
+  final date = await showDatePicker(
+    context: context,
+    helpText: 'Edit project due date',
+    initialDate: project.deadline,
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2100),
+  );
+  if (date == null || !context.mounted || !store.projects.contains(project)) {
+    return;
+  }
+  project.deadline = date;
+  store.upsertProject(project);
+}
+
+Future<void> editTaskDueDate(
+  BuildContext context,
+  WorkspaceStore store,
+  WorkTask task,
+) async {
+  final date = await showDatePicker(
+    context: context,
+    helpText: 'Edit task due date',
+    initialDate: task.due,
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2100),
+  );
+  if (date == null || !context.mounted || !store.tasks.contains(task)) return;
+  task.due = date;
+  store.upsertTask(task);
+}
+
 Future<void> projectForm(
   BuildContext context,
   WorkspaceStore s, {

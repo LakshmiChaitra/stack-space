@@ -87,6 +87,7 @@ extension _WorkspacePages on _WorkspaceShellState {
           final cards = [
             StatCard(
               title: 'Total projects',
+              onTap: () => navigate('Projects'),
               value: '${s.projects.length}'.padLeft(2, '0'),
               caption: 'Ideas taking shape',
               icon: Icons.folder_outlined,
@@ -94,6 +95,7 @@ extension _WorkspacePages on _WorkspaceShellState {
             ),
             StatCard(
               title: 'In progress',
+              onTap: () => openTaskStatus('In progress'),
               value: '$active'.padLeft(2, '0'),
               caption: 'Moving things forward',
               icon: Icons.timelapse_rounded,
@@ -101,6 +103,7 @@ extension _WorkspacePages on _WorkspaceShellState {
             ),
             StatCard(
               title: 'Completed tasks',
+              onTap: () => openTaskStatus('Done'),
               value: '$done'.padLeft(2, '0'),
               caption: 'Little wins, big progress',
               icon: Icons.task_alt_rounded,
@@ -108,6 +111,7 @@ extension _WorkspacePages on _WorkspaceShellState {
             ),
             StatCard(
               title: 'Team members',
+              onTap: () => navigate('Team'),
               value: '${s.members.length}'.padLeft(2, '0'),
               caption: 'Better when we build together',
               icon: Icons.people_outline,
@@ -350,6 +354,7 @@ extension _WorkspacePages on _WorkspaceShellState {
           (t) =>
               (boardProject == 'All projects' || t.projectId == boardProject) &&
               (priority == 'All priorities' || t.priority == priority) &&
+              (taskStatus == 'All statuses' || t.status == taskStatus) &&
               t.title.toLowerCase().contains(query),
         )
         .toList();
@@ -419,6 +424,30 @@ extension _WorkspacePages on _WorkspaceShellState {
                           )
                           .toList(),
                       onChanged: (v) => updateView(() => priority = v!),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 175,
+                    child: DropdownButtonFormField<String>(
+                      key: ValueKey('status-filter-$taskStatus'),
+                      initialValue: taskStatus,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        labelText: 'Task status',
+                      ),
+                      items: ['All statuses', ...statuses]
+                          .map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(
+                                status,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          updateView(() => taskStatus = value!),
                     ),
                   ),
                   SegmentedButton<bool>(
@@ -969,6 +998,13 @@ class ProjectDetail extends StatelessWidget {
                             'Target: ${dateLabel(p.deadline)}, ${p.deadline.year}',
                             style: const TextStyle(fontSize: 13),
                           ),
+                        ),
+                        IconButton(
+                          key: ValueKey('project-due-${p.id}'),
+                          tooltip: 'Edit project due date',
+                          onPressed: () =>
+                              editProjectDueDate(context, store, p),
+                          icon: const Icon(Icons.edit_calendar_outlined),
                         ),
                         Tag(
                           '${(store.progress(p.id) * 100).round()}% complete',

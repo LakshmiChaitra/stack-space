@@ -131,6 +131,8 @@ Workspace data is stored per browser and origin, so local preview data does not 
 
 Planner tests cover desktop/tablet/mobile in both themes, selected-date task creation and persistence, shared completion/progress, leap-year month boundaries, date selection, project-delete confirmation, and Undo restoring linked tasks. The full suite has 23 tests.
 
-The full suite now has 33 tests, including Bin persistence, restoration with project dependencies, metadata preservation, stale-Undo protection after permanent deletion, legacy backup compatibility, atomic backup validation, and responsive confirmation flows in both themes.
+The full suite now has 37 tests, including Bin persistence, restoration with project dependencies, metadata preservation, stale-Undo protection after permanent deletion, legacy backup compatibility, atomic backup validation, and responsive confirmation flows in both themes.
 
 Web releases inline the current Flutter loader and fingerprint the compiled app bundle to avoid stale browser updates. After a release build, run `python3 tool/prepare_web_release.py` before hosting `build/web` (the Pages workflow does this automatically). The legacy service worker is retired without clearing saved workspace data.
+
+Dashboard summary cards open Projects, Team, or a task list filtered by status. Project deadlines have a direct calendar edit button; task list due dates are clickable and changes persist across reloads. Responsive tests cover these navigation and edit/cancel flows.
