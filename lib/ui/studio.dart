@@ -464,7 +464,7 @@ class StudioHero extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Build smarter.\nShip together.',
+                          'Big ideas.\nReal progress.',
                           style: TextStyle(
                             fontFamily: 'Manrope',
                             fontSize: compact ? 37 : 47,
@@ -478,7 +478,7 @@ class StudioHero extends StatelessWidget {
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 360),
                           child: Text(
-                            'One workspace for your code, your team,\nand the next thing you’re building.',
+                            'Turn your next big idea into small daily wins.\nPlan your projects. Make every task count.',
                             style: TextStyle(
                               color: ink(context).withValues(alpha: .6),
                               fontSize: 12,

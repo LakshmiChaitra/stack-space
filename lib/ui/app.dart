@@ -91,7 +91,7 @@ class StackSpaceApp extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: store,
     builder: (context, _) => MaterialApp(
-      title: 'Stack Space — Build smarter. Ship together.',
+      title: 'Stack Space — Big ideas. Real progress.',
       debugShowCheckedModeBanner: false,
       theme: theme(false),
       darkTheme: theme(true),
