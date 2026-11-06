@@ -23,6 +23,8 @@ jobs:
       - run: flutter test
       - name: Build Flutter web for GitHub Pages
         run: flutter build web --release --no-web-resources-cdn --base-href /stack-space/
+      - name: Fingerprint app bundle and retire legacy cache
+        run: python3 tool/prepare_web_release.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
